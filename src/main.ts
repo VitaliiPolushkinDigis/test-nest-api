@@ -10,9 +10,13 @@ import { getRepository } from 'typeorm';
 
 async function bootstrap() {
   const { PORT } = process.env;
-  const app = await NestFactory.create(AppModule);
+  const app: any = await NestFactory.create(AppModule);
   const sessionRepository = getRepository(Session);
   app.setGlobalPrefix('api');
+
+  app.use(helmet());
+  app.set('trust proxy', 1);
+
   app.enableCors({
     origin: ['http://localhost:3000', 'https://ans-chat-front.vercel.app'],
     credentials: true,
