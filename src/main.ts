@@ -7,6 +7,7 @@ import { Session } from './utils/typeorm';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { getRepository } from 'typeorm';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const helmet = require('helmet');
 
 async function bootstrap() {
