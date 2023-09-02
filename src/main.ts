@@ -20,7 +20,12 @@ async function bootstrap() {
   app.set('trust proxy', 1);
 
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://ans-chat-front.vercel.app'],
+    origin: [
+      'http://localhost:3000',
+      'https://ans-chat-front.vercel.app',
+      'https://front-react-359f97dc238f.herokuapp.com',
+      'https://front-react-359f97dc238f.herokuapp.com/',
+    ],
     credentials: true,
     optionsSuccessStatus: 200,
   });
