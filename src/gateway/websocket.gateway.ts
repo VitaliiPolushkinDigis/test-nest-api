@@ -10,7 +10,12 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000'],
+    origin: [
+      'http://localhost:3000',
+      'https://front-react-359f97dc238f.herokuapp.com',
+      'https://front-react-359f97dc238f.herokuapp.com/',
+    ],
+    credentials: true,
   },
 })
 export class MessagingGateway implements OnGatewayConnection {

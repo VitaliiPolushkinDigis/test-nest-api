@@ -12,7 +12,18 @@ const helmet = require('helmet');
 
 async function bootstrap() {
   const { PORT } = process.env;
-  const app: any = await NestFactory.create(AppModule);
+  const app: any = await NestFactory.create(AppModule, {
+    cors: {
+      origin: [
+        'http://localhost:3000',
+        'https://ans-chat-front.vercel.app',
+        'https://front-react-359f97dc238f.herokuapp.com',
+        'https://front-react-359f97dc238f.herokuapp.com/',
+      ],
+      credentials: true,
+      optionsSuccessStatus: 200,
+    },
+  });
   const sessionRepository = getRepository(Session);
   app.setGlobalPrefix('api');
 
