@@ -1,3 +1,4 @@
+import { WebsocketAdapter } from './gateway/gateway.adapter';
 import 'reflect-metadata';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -7,12 +8,13 @@ import { Session } from './utils/typeorm';
 import * as session from 'express-session';
 import * as passport from 'passport';
 import { getRepository } from 'typeorm';
+import { NestExpressApplication } from '@nestjs/platform-express';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const helmet = require('helmet');
 
 async function bootstrap() {
   const { PORT } = process.env;
-  const app: any = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: [
         'http://localhost:3000',
@@ -25,6 +27,9 @@ async function bootstrap() {
     },
   });
   const sessionRepository = getRepository(Session);
+
+  const adapter = new WebsocketAdapter(app);
+  app.useWebSocketAdapter(adapter);
   app.setGlobalPrefix('api');
 
   app.use(helmet());
@@ -46,8 +51,9 @@ async function bootstrap() {
       secret: 'COOKIE_SECRET',
       saveUninitialized: false,
       resave: false,
+      name: 'CHAT_APP_SESSION_ID',
       cookie: {
-        maxAge: 86400000, // cookie expires 1 day later
+        maxAge: 3 * 86400000, // cookie expires 1 day later
         sameSite: 'none',
         secure: true,
         httpOnly: false,
