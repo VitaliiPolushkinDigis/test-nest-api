@@ -1,5 +1,5 @@
-import { WebsocketAdapter } from './gateway/gateway.adapter';
 import 'reflect-metadata';
+import { WebsocketAdapter } from './gateway/gateway.adapter';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
