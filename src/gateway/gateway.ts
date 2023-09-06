@@ -8,7 +8,7 @@ import {
   MessageBody,
   OnGatewayConnection,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { Inject } from '@nestjs/common';
 import { Services } from 'src/utils/constants';
 import { Message } from 'src/utils/typeorm';
@@ -55,16 +55,20 @@ export class MessagingGateway implements OnGatewayConnection {
     } = payload;
     const authorSocket = this.sessions.getUserSocket(author.id);
     console.log('authorSocket', authorSocket);
-    console.log('authorSocket.emit', authorSocket.emit);
+    console.log('authorSocket.emit', authorSocket?.emit);
 
     const recipientSocket =
       author.id === creator.id
         ? this.sessions.getUserSocket(recipient.id)
         : this.sessions.getUserSocket(creator.id);
     console.log('recipientSocket', recipientSocket);
-    console.log('recipientSocket.emit', recipientSocket.emit);
+    console.log('recipientSocket.emit', recipientSocket?.emit);
 
-    recipientSocket && recipientSocket.emit('onMessage', payload);
-    authorSocket && authorSocket.emit('onMessage', payload);
+    recipientSocket && recipientSocket.emit
+      ? recipientSocket.emit('onMessage', payload)
+      : console.log('no socket with emit for recipient');
+    authorSocket && authorSocket.emit
+      ? authorSocket.emit('onMessage', payload)
+      : console.log('no socket with emit for authorSocket');
   }
 }
