@@ -28,8 +28,8 @@ async function bootstrap() {
   });
   const sessionRepository = getRepository(Session);
 
-  const adapter = new WebsocketAdapter(app);
-  app.useWebSocketAdapter(adapter);
+  /*  const adapter = new WebsocketAdapter(app);
+  app.useWebSocketAdapter(adapter); */
   app.setGlobalPrefix('api');
 
   app.use(helmet());

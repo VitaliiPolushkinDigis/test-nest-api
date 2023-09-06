@@ -9,6 +9,8 @@ import { User } from 'src/utils/typeorm';
 
 export class WebsocketAdapter extends IoAdapter {
   createIOServer(port: number, options?: any) {
+    console.log('options', options);
+
     const sessionRepository = getRepository(Session);
 
     const server = super.createIOServer(port, options);

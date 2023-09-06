@@ -24,7 +24,7 @@ import entities from './utils/typeorm';
       password: '12345678' /* 123 */ /* '12345678' */,
       database: 'chat',
       entities,
-      synchronize: false,
+      synchronize: true,
     }),
     ConversationsModule,
     MessagesModule,
