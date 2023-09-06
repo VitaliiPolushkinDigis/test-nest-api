@@ -9,6 +9,7 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { getRepository } from 'typeorm';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const helmet = require('helmet');
 
@@ -27,14 +28,6 @@ async function bootstrap() {
     },
   });
   const sessionRepository = getRepository(Session);
-
-  /*  const adapter = new WebsocketAdapter(app);
-  app.useWebSocketAdapter(adapter); */
-  app.setGlobalPrefix('api');
-
-  app.use(helmet());
-  app.set('trust proxy', 1);
-
   app.enableCors({
     origin: [
       'http://localhost:3000',
@@ -45,6 +38,15 @@ async function bootstrap() {
     credentials: true,
     optionsSuccessStatus: 200,
   });
+
+  const configService = app.get(ConfigService);
+  const adapter = new WebsocketAdapter(app, configService);
+  app.useWebSocketAdapter(adapter);
+  app.setGlobalPrefix('api');
+
+  app.use(helmet());
+  app.set('trust proxy', 1);
+
   app.useGlobalPipes(new ValidationPipe());
   app.use(
     session({

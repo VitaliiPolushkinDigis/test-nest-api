@@ -6,8 +6,16 @@ import * as cookieParser from 'cookie-parser';
 import * as cookie from 'cookie';
 import { plainToInstance } from 'class-transformer';
 import { User } from 'src/utils/typeorm';
+import { INestApplicationContext } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 export class WebsocketAdapter extends IoAdapter {
+  constructor(
+    private app: INestApplicationContext,
+    private configService: ConfigService,
+  ) {
+    super(app);
+  }
   createIOServer(port: number, options?: any) {
     console.log('options', options);
 

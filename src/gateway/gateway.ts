@@ -31,8 +31,8 @@ export class MessagingGateway implements OnGatewayConnection {
   handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
     console.log('New Incoming Connection');
     console.log(socket.user, socket.id);
-    /* this.sessions.setUserSocket(socket.user.id, socket);
-    console.log('this.sessions:', this.sessions); */
+    this.sessions.setUserSocket(socket.user.id, socket);
+    console.log('this.sessions:', this.sessions);
 
     socket.emit('connected', { status: 'good' });
   }
@@ -46,7 +46,7 @@ export class MessagingGateway implements OnGatewayConnection {
 
   @OnEvent('message.create')
   handleMessageCreateEvent(payload: Message) {
-    /*  console.log('Inside message.create');
+    console.log('Inside message.create');
     console.log(payload);
 
     const {
@@ -69,11 +69,11 @@ export class MessagingGateway implements OnGatewayConnection {
       : console.log('no socket with emit for recipient');
     authorSocket && authorSocket.emit
       ? authorSocket.emit('onMessage', payload)
-      : console.log('no socket with emit for authorSocket'); */
+      : console.log('no socket with emit for authorSocket');
 
-    console.log('Inside message.create');
+    /*     console.log('Inside message.create');
     console.log(payload);
     this.server.emit('onMessage', payload);
-    return { payload, text: 'done' };
+    return { payload, text: 'done' }; */
   }
 }
