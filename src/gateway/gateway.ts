@@ -25,7 +25,7 @@ import { Message } from 'src/utils/typeorm';
 })
 export class MessagingGateway implements OnGatewayConnection {
   constructor(
-    @Inject(Services.GATEWAY_SESSION_MANAGER)
+    @Inject(Services.GATEWAY_SESSION)
     private readonly sessions: IGatewaySessionManager,
   ) {}
   handleConnection(socket: AuthenticatedSocket, ...args: any[]) {

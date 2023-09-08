@@ -9,8 +9,10 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBody, ApiCreatedResponse } from '@nestjs/swagger';
 import { instanceToPlain } from 'class-transformer';
 import { Request, Response } from 'express';
+import { User } from 'src/utils/typeorm';
 import { IUserService } from '../users/user';
 import { Routes, Services } from '../utils/constants';
 import { IAuthService } from './auth';
@@ -25,6 +27,11 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @ApiCreatedResponse({
+    description: 'Ok',
+    type: User,
+  })
+  @ApiBody({ type: CreateUserDto, description: 'CreateUserDto' })
   async registerUser(@Body() createUserDto: CreateUserDto) {
     return instanceToPlain(await this.userService.createUser(createUserDto));
   }

@@ -1,10 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { instanceToPlain } from 'class-transformer';
-import { Repository } from 'typeorm';
-import { Conversation, Message } from '../utils/typeorm';
-import { CreateMessageParams } from '../utils/types';
+import { CreateMessageParams } from './../utils/types';
 import { IMessageService } from './message';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Message, Conversation, User } from '../utils/typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class MessageService implements IMessageService {
@@ -14,6 +14,7 @@ export class MessageService implements IMessageService {
     @InjectRepository(Conversation)
     private readonly conversationRepository: Repository<Conversation>,
   ) {}
+
   async createMessage({
     user,
     content,
@@ -23,18 +24,20 @@ export class MessageService implements IMessageService {
       where: { id: conversationId },
       relations: ['creator', 'recipient'],
     });
+
     if (!conversation)
-      throw new HttpException('Conversation not found', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Convers not found!!!', HttpStatus.BAD_REQUEST);
+
     const { creator, recipient } = conversation;
-    console.log(`User ID: ${user.id}`);
-    console.log(conversation);
     if (creator.id !== user.id && recipient.id !== user.id)
       throw new HttpException('Cannot Create Message', HttpStatus.FORBIDDEN);
+
     const newMessage = this.messageRepository.create({
       content,
       conversation,
       author: instanceToPlain(user),
     });
+
     const savedMessage = await this.messageRepository.save(newMessage);
     conversation.lastMessageSent = savedMessage;
     await this.conversationRepository.save(conversation);
@@ -47,5 +50,14 @@ export class MessageService implements IMessageService {
       where: { conversation: { id: conversationId } },
       order: { createdAt: 'DESC' },
     });
+  }
+
+  updateMessage(id: number, content: string): Promise<any> {
+    return this.messageRepository.save({ id, content });
+    /*   .createQueryBuilder()
+     .update(Message)
+      .set({ content })
+      .where('id = :id', { id })
+      .execute(); */
   }
 }

@@ -9,12 +9,15 @@ import { MessagesModule } from './messages/messages.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import entities from './utils/typeorm';
+import { ProfileModule } from './profile/profile.module';
+import { PostsModule } from './posts/posts.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ envFilePath: '.env.development' }),
     AuthModule,
     UsersModule,
-    ConfigModule.forRoot({ envFilePath: '.env.development' }),
     PassportModule.register({ session: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -29,6 +32,9 @@ import entities from './utils/typeorm';
     ConversationsModule,
     MessagesModule,
     GatewayModule,
+    ProfileModule,
+    PostsModule,
+    CommentsModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [],

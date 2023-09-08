@@ -1,3 +1,7 @@
+import { User } from '../utils/typeorm';
+import { CreateMessageDto } from './dtos/CreateMessage.dto';
+import { MessageService } from './message.service';
+import { Routes, Services } from '../utils/types';
 import {
   Body,
   Controller,
@@ -5,19 +9,22 @@ import {
   Inject,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { Routes, Services } from '../utils/constants';
 import { AuthUser } from '../utils/decorators';
-import { User } from '../utils/typeorm';
-import { CreateMessageDto } from './dtos/CreateMessage.dto';
-import { IMessageService } from './message';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UpdateMessageDto } from './dtos/UpdateMessage.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { AuthenticatedGuard } from 'src/auth/utils/Guards';
 
+@ApiTags(Routes.MESSAGES)
 @Controller(Routes.MESSAGES)
+@UseGuards(AuthenticatedGuard)
 export class MessageController {
   constructor(
-    @Inject(Services.MESSAGES) private readonly messageService: IMessageService,
+    @Inject(Services.MESSAGES) private readonly messageService: MessageService,
     private eventEmitter: EventEmitter2,
   ) {}
 
@@ -33,13 +40,23 @@ export class MessageController {
     this.eventEmitter.emit('message.create', msg);
     return;
   }
-  @Get('/test')
-  test() {
-    return this.eventEmitter.emit('message.create', 'test done');
+
+  @Patch()
+  async updateMessage(
+    @AuthUser() user: User,
+    @Body() updateMessageDto: UpdateMessageDto,
+  ) {
+    const msg = await this.messageService.updateMessage(
+      updateMessageDto.messageId,
+      updateMessageDto.content,
+    );
+
+    return msg;
   }
 
   @Get(':conversationId')
   async getMessagesFromConversation(
+    @AuthUser() user: User,
     @Param('conversationId', ParseIntPipe) conversationId: number,
   ) {
     const messages = await this.messageService.getMessagesByConversationId(

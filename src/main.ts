@@ -7,9 +7,11 @@ import { TypeormStore } from 'connect-typeorm/out';
 import { Session } from './utils/typeorm';
 import * as session from 'express-session';
 import * as passport from 'passport';
+import * as cookieParser from 'cookie-parser';
 import { getRepository } from 'typeorm';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger/dist';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const helmet = require('helmet');
 
@@ -56,13 +58,24 @@ async function bootstrap() {
       name: 'CHAT_APP_SESSION_ID',
       cookie: {
         maxAge: 3 * 86400000, // cookie expires 1 day later
-        sameSite: 'none',
+        /*  sameSite: 'none',
         secure: true,
-        httpOnly: false,
+        httpOnly: false, */
       },
       store: new TypeormStore().connect(sessionRepository),
     }),
   );
+
+  app.use(cookieParser());
+
+  const config = new DocumentBuilder()
+    .setTitle('Blind Talk')
+    .setDescription('Blind Talk API description')
+    .setVersion('1.0')
+    .addTag('dev')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   app.use(passport.initialize());
   app.use(passport.session());

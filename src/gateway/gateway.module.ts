@@ -7,7 +7,7 @@ import { MessagingGateway } from './gateway';
   providers: [
     MessagingGateway,
     {
-      provide: Services.GATEWAY_SESSION_MANAGER,
+      provide: Services.GATEWAY_SESSION,
       useClass: GatewaySessionManager,
     },
   ],

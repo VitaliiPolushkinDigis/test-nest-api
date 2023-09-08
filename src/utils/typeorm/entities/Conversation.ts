@@ -1,3 +1,4 @@
+import { Message } from './Message';
 import {
   Column,
   CreateDateColumn,
@@ -8,7 +9,6 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Message } from './Message';
 import { User } from './User';
 
 @Entity({ name: 'conversations' })
@@ -29,10 +29,13 @@ export class Conversation {
     cascade: ['insert', 'remove', 'update'],
   })
   @JoinColumn()
-  messages: Message[];
+  messages: Message;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: number;
+  /*  @Column({ name: 'created_at' })
+  createdAt: number; */
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  createdAt: Date;
 
   @OneToOne(() => Message)
   @JoinColumn({ name: 'last_message_sent' })
