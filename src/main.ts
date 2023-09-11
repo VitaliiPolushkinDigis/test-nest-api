@@ -53,6 +53,10 @@ async function bootstrap() {
   app.use(helmet());
   app.set('trust proxy', 1);
 
+  const production: any = { sameSite: 'none', secure: true, httpOnly: false };
+
+  const isProd = process.env.NODE_ENV === 'production';
+
   app.useGlobalPipes(new ValidationPipe());
   app.use(
     session({
@@ -62,9 +66,7 @@ async function bootstrap() {
       name: 'CHAT_APP_SESSION_ID',
       cookie: {
         maxAge: 3 * 86400000, // cookie expires 1 day later
-        /* sameSite: 'none',
-        secure: true,
-        httpOnly: false, */
+        ...(isProd ? production : {}),
       },
       store: new TypeormStore().connect(sessionRepository),
     }),
