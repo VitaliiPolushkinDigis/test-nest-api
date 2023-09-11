@@ -16,7 +16,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger/dist';
 const helmet = require('helmet');
 
 async function bootstrap() {
-  const { PORT } = process.env;
+  const { PORT, PGHOST, PGDATABASE, PGUSER, PGPASSWORD, ENDPOINT_ID } =
+    process.env;
+
+  const URL = `postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}/${PGDATABASE}?options=project%3D${ENDPOINT_ID}`;
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     cors: {
       origin: [
@@ -54,13 +58,13 @@ async function bootstrap() {
     session({
       secret: 'COOKIE_SECRET',
       saveUninitialized: false,
-      resave: false,
+      resave: true,
       name: 'CHAT_APP_SESSION_ID',
       cookie: {
         maxAge: 3 * 86400000, // cookie expires 1 day later
-        sameSite: 'none',
+        /* sameSite: 'none',
         secure: true,
-        httpOnly: false,
+        httpOnly: false, */
       },
       store: new TypeormStore().connect(sessionRepository),
     }),
