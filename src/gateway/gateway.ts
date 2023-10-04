@@ -19,6 +19,8 @@ import { Message } from 'src/utils/typeorm';
       'http://localhost:3000',
       'https://front-react-359f97dc238f.herokuapp.com',
       'https://front-react-359f97dc238f.herokuapp.com/',
+      'https://blind-talk-a887ce0cffca.herokuapp.com/',
+      'https://blind-talk-a887ce0cffca.herokuapp.com',
     ],
     credentials: true,
   },
