@@ -30,6 +30,10 @@ export class MessagingGateway implements OnGatewayConnection {
     @Inject(Services.GATEWAY_SESSION)
     private readonly sessions: IGatewaySessionManager,
   ) {}
+
+  @WebSocketServer()
+  server: Server;
+
   handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
     console.log('New Incoming Connection');
     console.log(socket.user, socket.id);
@@ -38,8 +42,12 @@ export class MessagingGateway implements OnGatewayConnection {
 
     socket.emit('connected', { status: 'good' });
   }
-  @WebSocketServer()
-  server: Server;
+
+  handleDisconnect(socket: AuthenticatedSocket) {
+    console.log('handleDisconnect');
+    console.log(`${socket.user} disconnected.`);
+    this.sessions.removeUserSocket(socket.user.id);
+  }
 
   @SubscribeMessage('createMessage')
   handleCreateMessage(@MessageBody() data: any) {
@@ -56,22 +64,32 @@ export class MessagingGateway implements OnGatewayConnection {
       conversation: { creator, recipient },
     } = payload;
     const authorSocket = this.sessions.getUserSocket(author.id);
-    console.log('authorSocket', authorSocket);
-    console.log('authorSocket.emit', authorSocket?.emit);
 
     const recipientSocket =
       author.id === creator.id
         ? this.sessions.getUserSocket(recipient.id)
         : this.sessions.getUserSocket(creator.id);
-    console.log('recipientSocket', recipientSocket);
-    console.log('recipientSocket.emit', recipientSocket?.emit);
 
+    console.log('<---------SESSIONS', this.sessions.getSockets());
+
+    if (authorSocket) {
+      authorSocket.emit('onMessage', payload);
+    } else {
+      console.log('no socket with emit for authorSocket');
+    }
+
+    if (recipientSocket) {
+      recipientSocket.emit('onMessage', payload);
+    } else {
+      console.log('no socket with emit for recipient');
+    }
+    /* 
     recipientSocket && recipientSocket.emit
       ? recipientSocket.emit('onMessage', payload)
       : console.log('no socket with emit for recipient');
     authorSocket && authorSocket.emit
       ? authorSocket.emit('onMessage', payload)
-      : console.log('no socket with emit for authorSocket');
+      : console.log('no socket with emit for authorSocket'); */
 
     /*     console.log('Inside message.create');
     console.log(payload);
