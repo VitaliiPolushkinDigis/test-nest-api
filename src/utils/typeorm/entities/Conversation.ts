@@ -1,6 +1,5 @@
 import { Message } from './Message';
 import {
-  Column,
   CreateDateColumn,
   Entity,
   Index,

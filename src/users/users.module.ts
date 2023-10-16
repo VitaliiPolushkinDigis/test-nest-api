@@ -4,12 +4,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { Services } from '../utils/types';
 import { UserService } from './user.service';
-import { User } from '../utils/typeorm';
+import { Conversation, User } from '../utils/typeorm';
 import { UsersController } from './users.controller';
 import { ProfileService } from 'src/profile/profile.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Profile]), ProfileModule],
+  imports: [
+    TypeOrmModule.forFeature([User, Profile, Conversation]),
+    ProfileModule,
+  ],
   controllers: [UsersController],
   providers: [
     {

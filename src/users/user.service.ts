@@ -72,6 +72,7 @@ export class UserService implements IUserService {
 
     return this.userRepository.find({
       where: Object.keys(filters) ? filters : {},
+      relations: ['profile'],
     });
   }
 

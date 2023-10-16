@@ -3,6 +3,7 @@ import { User } from '../utils/typeorm';
 import {
   CreateUserDetails,
   FindUserParams,
+  FindUserQuery,
   UpdateUserDetails,
   UserParams,
 } from './../utils/types';
@@ -12,7 +13,11 @@ export interface IUserService {
     profileDetails?: CreateProfileDto,
   ): Promise<User>;
   findUser(findUserParams: FindUserParams): Promise<User>;
-  findUsers(findUsersParams: UserParams): Promise<User[]>;
+  findUsers(
+    findUsersParams: UserParams,
+    query?: FindUserQuery,
+    currentUserId?: number,
+  ): Promise<User[]>;
   saveUser(user: User): Promise<User>;
   searchUsers(search?: string): Promise<User[]>;
   updateUser(userDetails: UpdateUserDetails): Promise<User>;

@@ -35,6 +35,11 @@ export type FindUserParams = Partial<{
   email: string;
 }>;
 
+export type FindUserQuery = {
+  withCurrentUserConversation?: boolean;
+  withoutLoggedInUser?: boolean;
+};
+
 export type UpdateUserDetails = Pick<
   CreateUserDetails,
   'firstName' | 'lastName'
