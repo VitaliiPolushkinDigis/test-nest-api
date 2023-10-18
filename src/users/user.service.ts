@@ -1,12 +1,11 @@
 import { Profile } from './../utils/typeorm/entities/Profile';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from '../utils/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { Conversation, User } from '../utils/typeorm';
+import { ILike, In, Not, Repository } from 'typeorm';
 import { hashPassword } from './../utils/helpers';
 import {
   CreateUserDetails,
-  Filter,
   FindUserParams,
   UpdateUserDetails,
   UserParams,
@@ -19,6 +18,8 @@ export class UserService implements IUserService {
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     @InjectRepository(Profile)
     private readonly profileRepository: Repository<Profile>,
+    @InjectRepository(Conversation)
+    private readonly conversationRepository: Repository<Conversation>,
   ) {}
   async createUser(userDetails: CreateUserDetails) {
     const existingUser = await this.userRepository.findOne({
@@ -60,7 +61,10 @@ export class UserService implements IUserService {
     return this.userRepository.findOne(findUserParams);
   }
 
-  async findUsers(findUsersParams: UserParams): Promise<User[]> {
+  async findUsers(
+    loggedInUserId: number,
+    findUsersParams: UserParams,
+  ): Promise<User[]> {
     const filters = {};
 
     if (Object.keys(findUsersParams).length) {
@@ -68,6 +72,35 @@ export class UserService implements IUserService {
         findUsersParams.filters.map((f) => {
           filters[f.label] = f.value;
         });
+    }
+    if (findUsersParams.withoutConversationWithMe) {
+      const subqueryCreatorId = this.conversationRepository
+
+        .createQueryBuilder('conversation')
+        .leftJoin('conversation.creator', 'creator')
+        .addSelect(['creator.id'])
+        .leftJoin('conversation.recipient', 'recipient')
+        .addSelect(['recipient.id'])
+        .where('creator.id = :id', { id: loggedInUserId })
+        .orWhere('recipient.id = :id', { id: loggedInUserId })
+        .getMany();
+      const res = await subqueryCreatorId;
+
+      const setArray = new Set();
+      res.map((c) => {
+        setArray.add(c.creator.id);
+        setArray.add(c.recipient.id);
+      });
+      const array = [];
+      for (const value of setArray) {
+        array.push(value);
+      }
+
+      const query = this.userRepository
+        .createQueryBuilder('user')
+        .where({ id: Not(In(array)) });
+
+      return await query.getMany();
     }
 
     return this.userRepository.find({

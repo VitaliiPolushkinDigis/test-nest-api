@@ -14,9 +14,9 @@ export interface IUserService {
   ): Promise<User>;
   findUser(findUserParams: FindUserParams): Promise<User>;
   findUsers(
+    currentUserId: number,
     findUsersParams: UserParams,
     query?: FindUserQuery,
-    currentUserId?: number,
   ): Promise<User[]>;
   saveUser(user: User): Promise<User>;
   searchUsers(search?: string): Promise<User[]>;

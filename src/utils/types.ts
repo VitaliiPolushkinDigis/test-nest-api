@@ -58,6 +58,7 @@ export type UserParams = {
   search?: string;
   filters?: Filter[];
   sort?: Sort[];
+  withoutConversationWithMe?: boolean;
 };
 
 export type CreateConversationParams = {

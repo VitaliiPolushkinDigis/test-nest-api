@@ -51,8 +51,11 @@ export class UsersController {
 
   @Get('search')
   async findUsers(@AuthUser() user: User, @Body() params: UserParams) {
+    //FIXME: use @Query() instead of params
     if (user.id) {
-      return instanceToPlain(await this.usersService.findUsers(params));
+      return instanceToPlain(
+        await this.usersService.findUsers(user.id, params),
+      );
     }
     return '';
   }
