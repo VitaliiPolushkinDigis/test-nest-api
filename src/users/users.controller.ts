@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { AuthUser } from '../utils/decorators';
@@ -50,12 +51,10 @@ export class UsersController {
   }
 
   @Get('search')
-  async findUsers(@AuthUser() user: User, @Body() params: UserParams) {
+  async findUsers(@AuthUser() user: User, @Query() query: UserParams) {
     //FIXME: use @Query() instead of params
     if (user.id) {
-      return instanceToPlain(
-        await this.usersService.findUsers(user.id, params),
-      );
+      return instanceToPlain(await this.usersService.findUsers(user.id, query));
     }
     return '';
   }
