@@ -57,4 +57,7 @@ export class User {
 
   @Column()
   profileId: number;
+
+  @Column({ nullable: true })
+  public stripeCustomerId?: string;
 }

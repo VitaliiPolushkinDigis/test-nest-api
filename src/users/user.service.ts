@@ -98,6 +98,7 @@ export class UserService implements IUserService {
 
       const query = this.userRepository
         .createQueryBuilder('user')
+        .leftJoinAndSelect('user.profile', 'profile')
         .where({ id: Not(In(array)) });
 
       return await query.getMany();

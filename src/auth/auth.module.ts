@@ -19,3 +19,4 @@ import { SessionSerializer } from './utils/SessionSerializer';
   ],
 })
 export class AuthModule {}
+// FIXME:READ https://docs.nestjs.com/recipes/passport to better understanding

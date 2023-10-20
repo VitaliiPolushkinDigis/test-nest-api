@@ -12,6 +12,7 @@ import entities from './utils/typeorm';
 import { ProfileModule } from './profile/profile.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
+import { StripeModule } from './stripe/stripe.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CommentsModule } from './comments/comments.module';
     ProfileModule,
     PostsModule,
     CommentsModule,
+    StripeModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [],
