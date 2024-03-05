@@ -21,6 +21,8 @@ import { Message } from 'src/utils/typeorm';
       'https://front-react-359f97dc238f.herokuapp.com/',
       'https://blind-talk-a887ce0cffca.herokuapp.com/',
       'https://blind-talk-a887ce0cffca.herokuapp.com',
+      'https://chat-nextjs-a5df84e059d6.herokuapp.com/',
+      'https://chat-nextjs-a5df84e059d6.herokuapp.com',
     ],
     credentials: true,
   },
