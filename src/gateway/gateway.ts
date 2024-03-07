@@ -36,6 +36,8 @@ export class MessagingGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
+  private users = {};
+
   handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
     console.log('New Incoming Connection');
     console.log(socket.user, socket.id);
@@ -43,12 +45,45 @@ export class MessagingGateway implements OnGatewayConnection {
     console.log('this.sessions:', this.sessions);
 
     socket.emit('connected', { status: 'good' });
+
+    //new code for webRTC
+    if (!this.users[socket.id]) {
+      this.users[socket.id] = socket.id;
+    }
+
+    socket.emit('yourID', socket.id);
+    this.server.sockets.emit('allUsers', this.users);
+
+    socket.on('disconnect', () => {
+      delete this.users[socket.id];
+    });
+
+    socket.on('callUser', (data) => {
+      this.server
+        .to(data.userToCall)
+        .emit('hey', { signal: data.signalData, from: data.from });
+    });
+
+    socket.on('acceptCall', (data) => {
+      this.server.to(data.to).emit('callAccepted', data.signal);
+    });
+
+    /*  socket.on('callUser', (data) => {
+      this.server
+        .to(data.userToCall)
+        .emit('hey', { signal: data.signalData, from: data.from });
+    });
+    socket.on('acceptCall', (data) => {
+      this.server.to(data.to).emit('callAccepted', data.signal);
+    }); */
   }
 
   handleDisconnect(socket: AuthenticatedSocket) {
     console.log('handleDisconnect');
     console.log(`${socket.user} disconnected.`);
     this.sessions.removeUserSocket(socket.user.id);
+
+    delete this.users[socket.id];
   }
 
   @SubscribeMessage('createMessage')
