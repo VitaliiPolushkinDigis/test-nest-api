@@ -46,15 +46,42 @@ export class UsersController {
     @Body() { search }: { search?: string },
   ) {
     if (id) {
-      return instanceToPlain(await this.usersService.searchUsers(search));
+      const users = instanceToPlain(
+        await this.usersService.searchUsers(search),
+      );
+      return users;
     }
   }
 
   @Get('search')
-  async findUsers(@AuthUser() user: User, @Query() query: UserParams) {
+  async findUsers(
+    @AuthUser() user: User,
+    @Query('withoutConversationWithMe') withoutConversationWithMe: string,
+  ) {
     //FIXME: use @Query() instead of params
     if (user.id) {
-      return instanceToPlain(await this.usersService.findUsers(user.id, query));
+      const res = instanceToPlain(
+        await this.usersService.findUsers(user.id, {
+          withoutConversationWithMe: withoutConversationWithMe === 'true',
+        }),
+      );
+      console.log('withoutConversationWithMe', withoutConversationWithMe);
+
+      console.log('----------------withoutConversationWithMe', res);
+
+      return res;
+    }
+    return '';
+  }
+
+  @Get('/hasConversationsBadge')
+  async findUsersWithConversationsBadge(@AuthUser() user: User) {
+    if (user.id) {
+      const res = instanceToPlain(
+        await this.usersService.findUsersWithConversationsBadge(user.id),
+      );
+      console.log('-------findUsersWithConversationsBadge', res);
+      return res;
     }
     return '';
   }

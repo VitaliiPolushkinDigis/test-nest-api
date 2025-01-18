@@ -25,11 +25,8 @@ export class PostsController {
   ) {}
 
   @Post()
-  create(
-    @AuthUser() { profileId }: User,
-    @Body() createPostDto: CreatePostDto,
-  ) {
-    return this.postsService.createPost(profileId, createPostDto);
+  create(@AuthUser() user: User, @Body() createPostDto: CreatePostDto) {
+    return this.postsService.createPost(user, createPostDto);
   }
 
   @Get()

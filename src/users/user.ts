@@ -18,6 +18,7 @@ export interface IUserService {
     findUsersParams: UserParams,
     query?: FindUserQuery,
   ): Promise<User[]>;
+  findUsersWithConversationsBadge(userId: number): Promise<User[]>;
   saveUser(user: User): Promise<User>;
   searchUsers(search?: string): Promise<User[]>;
   updateUser(userDetails: UpdateUserDetails): Promise<User>;

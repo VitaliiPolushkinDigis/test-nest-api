@@ -76,10 +76,10 @@ export class UserService implements IUserService {
     if (findUsersParams.withoutConversationWithMe) {
       const subqueryCreatorId = this.conversationRepository
 
-        .createQueryBuilder('conversation')
-        .leftJoin('conversation.creator', 'creator')
+        .createQueryBuilder('conversations')
+        .leftJoin('conversations.creator', 'creator')
         .addSelect(['creator.id'])
-        .leftJoin('conversation.recipient', 'recipient')
+        .leftJoin('conversations.recipient', 'recipient')
         .addSelect(['recipient.id'])
         .where('creator.id = :id', { id: loggedInUserId })
         .orWhere('recipient.id = :id', { id: loggedInUserId })
@@ -108,6 +108,52 @@ export class UserService implements IUserService {
       where: Object.keys(filters) ? filters : {},
       relations: ['profile'],
     });
+  }
+
+  async findUsersWithConversationsBadge(userId: number): Promise<any[]> {
+    const users = await this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile') // Ensure profile relation is selected
+      .leftJoin(
+        'conversations',
+        'conversations',
+        '(conversations.creatorId = user.id AND conversations.recipientId = :userId) OR (conversations.recipientId = user.id AND conversations.creatorId = :userId)',
+        { userId },
+      )
+      .where('user.id != :userId', { userId }) // Exclude current user
+      .select([
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.email',
+        'profile.id', // Select profile fields here explicitly
+        'profile.avatarUrl', // Example field from profile
+        'conversations.id', // To determine if a conversation exists
+      ])
+      .addSelect(
+        `CASE 
+        WHEN conversations.id IS NOT NULL THEN true 
+        ELSE false 
+      END`,
+        'hasConversation', // Add computed hasConversation field
+      )
+      .setParameter('userId', userId)
+      .getRawMany(); // Use getRawMany to get raw result with computed field
+
+    console.log('--------service users', users);
+
+    // Map the raw result to include `hasConversation` as a property and profile as well
+    return users.map((user) => ({
+      id: user.user_id,
+      firstName: user.user_firstName,
+      lastName: user.user_lastName,
+      email: user.user_email,
+      profile: {
+        id: user.profile_id,
+        avatarUrl: user.profile_avatarUrl,
+      }, // Include profile directly from raw result
+      hasConversation: user.hasConversation === 'true', // Convert from string to boolean
+    }));
   }
 
   async saveUser(user: User) {
