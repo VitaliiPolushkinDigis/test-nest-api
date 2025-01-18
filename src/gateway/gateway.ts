@@ -24,6 +24,7 @@ import { Message } from 'src/utils/typeorm';
       'https://chat-nextjs-a5df84e059d6.herokuapp.com/',
       'https://chat-nextjs-a5df84e059d6.herokuapp.com',
       'https://nextjs-chat-app-vxuo.vercel.app',
+      'https://nextjs-chat-app-vxuo.vercel.app/',
     ],
     credentials: true,
   },
