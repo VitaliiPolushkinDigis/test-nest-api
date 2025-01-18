@@ -23,6 +23,7 @@ import { Message } from 'src/utils/typeorm';
       'https://blind-talk-a887ce0cffca.herokuapp.com',
       'https://chat-nextjs-a5df84e059d6.herokuapp.com/',
       'https://chat-nextjs-a5df84e059d6.herokuapp.com',
+      'https://nextjs-chat-app-vxuo.vercel.app',
     ],
     credentials: true,
   },
