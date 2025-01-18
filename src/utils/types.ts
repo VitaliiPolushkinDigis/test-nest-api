@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { User } from './typeorm';
 export enum Routes {
   AUTH = 'auth',

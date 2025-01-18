@@ -5,8 +5,14 @@ import { AuthGuard } from '@nestjs/passport';
 export class LocalAuthGuard extends AuthGuard('local') {
   async canActivate(context: ExecutionContext) {
     const result = (await super.canActivate(context)) as boolean;
+    console.log('canActivate', result);
+
     const request = context.switchToHttp().getRequest();
-    await super.logIn(request);
+    console.log('context.switchToHttp().getRequest()', request);
+
+    const login = await super.logIn(request);
+    console.log('login operation', login);
+
     return result;
   }
 }
