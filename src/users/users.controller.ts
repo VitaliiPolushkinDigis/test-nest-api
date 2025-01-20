@@ -14,7 +14,7 @@ import {
 import { AuthUser } from '../utils/decorators';
 import { User } from '../utils/typeorm';
 import { Routes, UpdateUserDetails, UserParams } from '../utils/types';
-import { AuthenticatedGuard } from '../auth/utils/Guards';
+import { AuthenticatedGuard, JwtAuthGuard } from '../auth/utils/Guards';
 import { Services } from '../utils/types';
 import { IUserService } from './user';
 import { instanceToPlain } from 'class-transformer';
@@ -22,7 +22,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags(Routes.USERS)
 @Controller(Routes.USERS)
-@UseGuards(AuthenticatedGuard)
+@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(
     @Inject(Services.USERS)

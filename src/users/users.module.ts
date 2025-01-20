@@ -7,6 +7,7 @@ import { UserService } from './user.service';
 import { Conversation, User } from '../utils/typeorm';
 import { UsersController } from './users.controller';
 import { ProfileService } from 'src/profile/profile.service';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ProfileService } from 'src/profile/profile.service';
       provide: Services.USERS,
       useClass: UserService,
     },
+    TypeOrmModule,
   ],
 })
 export class UsersModule {}

@@ -5,13 +5,10 @@ import { AuthGuard } from '@nestjs/passport';
 export class LocalAuthGuard extends AuthGuard('local') {
   async canActivate(context: ExecutionContext) {
     const result = (await super.canActivate(context)) as boolean;
-    console.log('canActivate', result);
 
     const request = context.switchToHttp().getRequest();
-    console.log('context.switchToHttp().getRequest()', request);
 
-    const login = await super.logIn(request);
-    console.log('login operation', login);
+    await super.logIn(request);
 
     return result;
   }
@@ -25,3 +22,6 @@ export class AuthenticatedGuard implements CanActivate {
     return req.isAuthenticated();
   }
 }
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}

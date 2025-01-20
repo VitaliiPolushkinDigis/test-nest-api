@@ -18,3 +18,8 @@ export enum Services {
   POST_SERVICE = 'POST_SERVICE',
   STRIPE_SERVICE = 'STRIPE_SERVICE',
 }
+
+export const jwtConstants = {
+  secret:
+    'DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.',
+};

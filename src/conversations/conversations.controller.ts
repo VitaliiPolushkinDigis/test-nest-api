@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthenticatedGuard } from '../auth/utils/Guards';
+import { AuthenticatedGuard, JwtAuthGuard } from '../auth/utils/Guards';
 import { Routes, Services } from '../utils/constants';
 import { AuthUser } from '../utils/decorators';
 import { User } from '../utils/typeorm';
@@ -15,7 +15,7 @@ import { IConversationsService } from './conversations';
 import { CreateConversationDto } from './dtos/CreateConversation.dto';
 
 @Controller(Routes.CONVERSATIONS)
-@UseGuards(AuthenticatedGuard)
+@UseGuards(JwtAuthGuard)
 export class ConversationsController {
   constructor(
     @Inject(Services.CONVERSATIONS)
@@ -27,8 +27,7 @@ export class ConversationsController {
     @AuthUser() user: User,
     @Body() createConversationPayload: CreateConversationDto,
   ) {
-    console.log('createConversation');
-    return this.conversationsService.createConversation(
+    return await this.conversationsService.createConversation(
       user,
       createConversationPayload,
     );
@@ -36,7 +35,8 @@ export class ConversationsController {
 
   @Get()
   async getConversations(@AuthUser() { id }: User) {
-    return this.conversationsService.getConversations(id);
+    const res = await this.conversationsService.getConversations(id);
+    return res;
   }
 
   @Get(':id')

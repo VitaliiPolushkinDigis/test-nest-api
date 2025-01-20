@@ -1,4 +1,4 @@
-import { AuthenticatedGuard } from './../auth/utils/Guards';
+import { AuthenticatedGuard, JwtAuthGuard } from './../auth/utils/Guards';
 import { Routes } from './../utils/constants';
 import { ICommentService } from './comments';
 import { Services, CreateCommentParams } from './../utils/types';
@@ -18,7 +18,7 @@ import { CreateCommentDto } from './dtos/create-comment.dto';
 
 @ApiTags(Routes.COMMENTS)
 @Controller(Routes.COMMENTS)
-@UseGuards(AuthenticatedGuard)
+@UseGuards(JwtAuthGuard)
 export class CommentsController {
   constructor(
     @Inject(Services.COMMENTS)

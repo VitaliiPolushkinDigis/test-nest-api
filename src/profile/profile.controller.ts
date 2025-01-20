@@ -12,7 +12,7 @@ import {
 import { ProfileService } from './profile.service';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { AuthenticatedGuard } from 'src/auth/utils/Guards';
+import { AuthenticatedGuard, JwtAuthGuard } from 'src/auth/utils/Guards';
 import { Routes } from 'src/utils/types';
 import { Services } from 'src/utils/constants';
 import { instanceToPlain } from 'class-transformer';
@@ -41,7 +41,7 @@ export class ProfileController {
     return this.profileService.findOne(+id);
   }
 
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProfileDto: UpdateProfileDto) {
     return this.profileService.update(+id, updateProfileDto);

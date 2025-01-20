@@ -17,8 +17,13 @@ import { IUserService } from '../users/user';
 import { Routes, Services } from '../utils/constants';
 import { IAuthService } from './auth';
 import { CreateUserDto } from './dtos/CreateUser.dto';
-import { AuthenticatedGuard, LocalAuthGuard } from './utils/Guards';
+import {
+  AuthenticatedGuard,
+  JwtAuthGuard,
+  LocalAuthGuard,
+} from './utils/Guards';
 import { AuthenticatedRequest } from 'src/utils/types';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller(Routes.AUTH)
 export class AuthController {
@@ -39,22 +44,25 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(@Res() res: Response) {
-    return res.send(HttpStatus.OK);
+  async login(@Req() req: Request) {
+    return this.authService.login(req.user);
+  }
+
+  @Post('refresh-token')
+  async refreshToken(@Body() body: { refresh_token: string }) {
+    const { refresh_token } = body;
+    return this.authService.refreshToken(refresh_token);
   }
 
   @Get('status')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(JwtAuthGuard)
   status(@Req() req: Request, @Res() res: Response) {
-    console.log(req.user);
     res.send(req.user);
   }
 
   @Post('logout')
-  @UseGuards(AuthenticatedGuard)
+  @UseGuards(JwtAuthGuard)
   logout(@Req() req: AuthenticatedRequest, @Res() res: Response) {
-    console.log('---------req', req);
-
     req.logout((err) => {
       return err ? res.send(400) : res.send(200);
     });

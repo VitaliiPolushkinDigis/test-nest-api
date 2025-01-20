@@ -17,11 +17,11 @@ import { AuthUser } from '../utils/decorators';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UpdateMessageDto } from './dtos/UpdateMessage.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthenticatedGuard } from 'src/auth/utils/Guards';
+import { AuthenticatedGuard, JwtAuthGuard } from 'src/auth/utils/Guards';
 
 @ApiTags(Routes.MESSAGES)
 @Controller(Routes.MESSAGES)
-@UseGuards(AuthenticatedGuard)
+@UseGuards(JwtAuthGuard)
 export class MessageController {
   constructor(
     @Inject(Services.MESSAGES) private readonly messageService: MessageService,
