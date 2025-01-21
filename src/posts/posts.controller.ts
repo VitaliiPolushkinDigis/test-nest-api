@@ -42,8 +42,6 @@ export class PostsController {
   @Get('/profile/:id')
   findAllProfilePosts(@Param('id') id: string) {
     const req = this.postsService.findAllProfilePosts(+id);
-    console.log('------------req', req);
-
     return req;
   }
 

@@ -8,10 +8,12 @@ import {
   MessageBody,
   OnGatewayConnection,
 } from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { Inject } from '@nestjs/common';
-import { Services } from 'src/utils/constants';
-import { Message } from 'src/utils/typeorm';
+import { Server, Socket } from 'socket.io';
+import { Inject, Logger } from '@nestjs/common';
+import { jwtConstants, Services } from 'src/utils/constants';
+import { Message, User } from 'src/utils/typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { getRepository } from 'typeorm';
 
 @WebSocketGateway({
   cors: {
@@ -30,45 +32,54 @@ import { Message } from 'src/utils/typeorm';
   },
 })
 export class MessagingGateway implements OnGatewayConnection {
+  private logger = new Logger(MessagingGateway.name);
+  private users: Record<string, Socket> = {};
   constructor(
     @Inject(Services.GATEWAY_SESSION)
     private readonly sessions: IGatewaySessionManager,
+    private readonly jwtService: JwtService,
   ) {}
 
   @WebSocketServer()
   server: Server;
 
-  private users = {};
-
-  handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
+  async handleConnection(socket: AuthenticatedSocket, ...args: any[]) {
     console.log('New Incoming Connection');
-    console.log(socket.user, socket.id);
-    this.sessions.setUserSocket(socket.user.id, socket);
-    console.log('this.sessions:', this.sessions);
+    const token = (socket.handshake.auth as any)?.token?.split(' ')[1];
 
-    socket.emit('connected', { status: 'good' });
+    if (!token) {
+      this.logger.error('Authorization token missing.');
+      console.log('Authorization token missing.');
 
-    //new code for webRTC
-    if (!this.users[socket.id]) {
-      this.users[socket.id] = socket.id;
+      socket.disconnect(true); // Disconnect the socket if no token is present
+      return;
     }
 
-    socket.emit('yourID', socket.id);
-    this.server.sockets.emit('allUsers', this.users);
+    try {
+      const decoded: any = this.jwtService.verify(token, {
+        secret: jwtConstants.secret,
+      });
 
-    socket.on('disconnect', () => {
-      delete this.users[socket.id];
-    });
+      // Validate the user from the decoded token
+      const user = await getRepository(User).findOne(decoded.sub);
+      if (!user) {
+        this.logger.error('User not found.');
+        socket.disconnect(true); // Disconnect if user is not found
+        return;
+      }
 
-    socket.on('callUser', (data) => {
-      this.server
-        .to(data.userToCall)
-        .emit('hey', { signal: data.signalData, from: data.from });
-    });
+      // Store the socket with the user ID
+      this.users[user.id] = socket;
 
-    socket.on('acceptCall', (data) => {
-      this.server.to(data.to).emit('callAccepted', data.signal);
-    });
+      socket.user = user; // Attach the user to the socket object
+      this.logger.log('User authenticated successfully');
+
+      // Proceed with the rest of the connection logic
+      socket.emit('connected', { status: 'good' });
+    } catch (error) {
+      this.logger.error('Token verification failed:', error.message);
+      socket.disconnect(true); // Disconnect if token verification fails
+    }
 
     /*  socket.on('callUser', (data) => {
       this.server
@@ -83,8 +94,7 @@ export class MessagingGateway implements OnGatewayConnection {
   handleDisconnect(socket: AuthenticatedSocket) {
     console.log('handleDisconnect');
     console.log(`${socket.user} disconnected.`);
-    this.sessions.removeUserSocket(socket.user.id);
-
+    socket.disconnect(true);
     delete this.users[socket.id];
   }
 
@@ -102,25 +112,26 @@ export class MessagingGateway implements OnGatewayConnection {
       author,
       conversation: { creator, recipient },
     } = payload;
-    const authorSocket = this.sessions.getUserSocket(author.id);
+    console.log('this.users', this.users);
 
+    const authorSocket = this.users[author.id];
     const recipientSocket =
       author.id === creator.id
-        ? this.sessions.getUserSocket(recipient.id)
-        : this.sessions.getUserSocket(creator.id);
-
-    console.log('<---------SESSIONS', this.sessions.getSockets());
+        ? this.users[recipient.id]
+        : this.users[creator.id];
 
     if (authorSocket) {
+      console.log('Emitting message to author socket', author.id);
       authorSocket.emit('onMessage', payload);
     } else {
-      console.log('no socket with emit for authorSocket');
+      console.log('No socket for author', author.id);
     }
 
     if (recipientSocket) {
+      console.log('Emitting message to recipient socket', recipient.id);
       recipientSocket.emit('onMessage', payload);
     } else {
-      console.log('no socket with emit for recipient');
+      console.log('No socket for recipient', recipient.id);
     }
     /* 
     recipientSocket && recipientSocket.emit

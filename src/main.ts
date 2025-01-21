@@ -85,6 +85,7 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+  app.use(passport.initialize());
 
   const config = new DocumentBuilder()
     .setTitle('Blind Talk')
@@ -95,7 +96,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  app.use(passport.initialize());
   app.use(passport.session());
 
   try {
