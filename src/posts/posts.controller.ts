@@ -8,6 +8,7 @@ import {
   Param,
   Delete,
   Inject,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ApiTags } from '@nestjs/swagger';
@@ -16,9 +17,11 @@ import { AuthUser } from 'src/utils/decorators';
 import { CreatePostDto } from './dtos/create-post';
 import { UpdatePostDto } from './dtos/update-post';
 import { PostsService } from './posts.service';
+import { JwtAuthGuard } from 'src/auth/utils/Guards';
 
 @ApiTags(Routes.POSTS)
 @Controller(Routes.POSTS)
+@UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(
     @Inject(Services.POST_SERVICE) private readonly postsService: PostsService,
