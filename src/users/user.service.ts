@@ -73,41 +73,28 @@ export class UserService implements IUserService {
           filters[f.label] = f.value;
         });
     }
+
+    const query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.profile', 'profile');
+
     if (findUsersParams.withoutConversationWithMe) {
-      const subqueryCreatorId = this.conversationRepository
-
-        .createQueryBuilder('conversations')
-        .leftJoin('conversations.creator', 'creator')
-        .addSelect(['creator.id'])
-        .leftJoin('conversations.recipient', 'recipient')
-        .addSelect(['recipient.id'])
-        .where('creator.id = :id', { id: loggedInUserId })
-        .orWhere('recipient.id = :id', { id: loggedInUserId })
-        .getMany();
-      const res = await subqueryCreatorId;
-
-      const setArray = new Set();
-      res.map((c) => {
-        setArray.add(c.creator.id);
-        setArray.add(c.recipient.id);
-      });
-      const array = [];
-      for (const value of setArray) {
-        array.push(value);
-      }
-
-      const query = this.userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.profile', 'profile')
-        .where({ id: Not(In(array)) });
-
-      return await query.getMany();
+      query
+        .leftJoin(
+          'conversations',
+          'conversations',
+          '(conversations.creatorId = user.id AND conversations.recipientId = :loggedInUserId) OR (conversations.recipientId = user.id AND conversations.creatorId = :loggedInUserId)',
+          { loggedInUserId },
+        )
+        .where('conversations.id IS NULL')
+        .andWhere('user.id != :loggedInUserId', { loggedInUserId });
     }
 
-    return this.userRepository.find({
-      where: Object.keys(filters) ? filters : {},
-      relations: ['profile'],
-    });
+    if (Object.keys(filters).length) {
+      query.andWhere(filters);
+    }
+
+    return query.getMany();
   }
 
   async findUsersWithConversationsBadge(userId: number): Promise<any[]> {
