@@ -6,6 +6,7 @@ export enum Routes {
   PROFILE_SERVICE = 'profiles',
   POSTS = 'posts',
   COMMENTS = 'comments',
+  FRIENDS = 'friends',
 }
 
 export enum Services {
@@ -17,6 +18,7 @@ export enum Services {
   PROFILE_SERVICE = 'PROFILE_SERVICE',
   POST_SERVICE = 'POST_SERVICE',
   STRIPE_SERVICE = 'STRIPE_SERVICE',
+  FRIENDS_SERVICE = 'FRIENDS_SERVICE',
 }
 
 export const jwtConstants = {

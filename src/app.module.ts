@@ -13,6 +13,7 @@ import { ProfileModule } from './profile/profile.module';
 import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { StripeModule } from './stripe/stripe.module';
+import { FriendsModule } from './friends/friends.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { StripeModule } from './stripe/stripe.module';
     CommentsModule,
     StripeModule,
     EventEmitterModule.forRoot(),
+    FriendsModule,
   ],
   controllers: [],
   providers: [],
