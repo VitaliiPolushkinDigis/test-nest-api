@@ -33,29 +33,12 @@ async function bootstrap() {
         'https://chat-nextjs-a5df84e059d6.herokuapp.com/',
         'https://chat-nextjs-a5df84e059d6.herokuapp.com',
         'https://nextjs-chat-app-vxuo.vercel.app',
-        'https://nextjs-chat-app-vxuo.vercel.app/',
       ],
       credentials: true,
       optionsSuccessStatus: 200,
     },
   });
   const sessionRepository = getRepository(Session);
-  app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://ans-chat-front.vercel.app',
-      'https://front-react-359f97dc238f.herokuapp.com',
-      'https://front-react-359f97dc238f.herokuapp.com/',
-      'https://blind-talk-a887ce0cffca.herokuapp.com/',
-      'https://blind-talk-a887ce0cffca.herokuapp.com',
-      'https://chat-nextjs-a5df84e059d6.herokuapp.com/',
-      'https://chat-nextjs-a5df84e059d6.herokuapp.com',
-      'https://nextjs-chat-app-vxuo.vercel.app',
-      'https://nextjs-chat-app-vxuo.vercel.app/',
-    ],
-    credentials: true,
-    optionsSuccessStatus: 200,
-  });
 
   const configService = app.get(ConfigService);
   const adapter = new WebsocketAdapter(app, configService);
