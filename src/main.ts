@@ -82,7 +82,10 @@ async function bootstrap() {
   app.use(passport.session());
 
   try {
-    await app.listen(PORT, () => console.log(`Running on Port ${PORT}`));
+    const currentPort = isProd ? process.env.PORT : PORT;
+    await app.listen(currentPort, () =>
+      console.log(`Running on Port ${currentPort}`),
+    );
   } catch (err) {
     console.log(err);
   }
