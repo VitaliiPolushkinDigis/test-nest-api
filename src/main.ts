@@ -83,6 +83,8 @@ async function bootstrap() {
 
   try {
     const currentPort = isProd ? process.env.PORT : PORT;
+    console.log('process.env.PORT', process.env.PORT);
+
     await app.listen(currentPort, () =>
       console.log(`Running on Port ${currentPort}`),
     );
