@@ -32,6 +32,26 @@ export class AuthController {
     @Inject(Services.USERS) private userService: IUserService,
   ) {}
 
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    // initiates the Google OAuth2 login flow
+    console.log('req', req, req.user);
+    return req;
+    //   const user = this.authService.validateGoogleUser(req.user);
+    // const token = this.jwtService.sign({ sub: user.id, email: user.email });
+    // return { user, token };
+  }
+
+  @Get('google/redirect')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req) {
+    console.log('----req', req);
+
+    // handles the Google OAuth2 callback
+    return req.user; // or handle JWT creation/session here
+  }
+
   @Post('register')
   @ApiCreatedResponse({
     description: 'Ok',
