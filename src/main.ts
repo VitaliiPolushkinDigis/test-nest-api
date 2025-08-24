@@ -22,9 +22,32 @@ async function bootstrap() {
   const URL = `postgres://${PGUSER}:${PGPASSWORD}@${PGHOST}/${PGDATABASE}?options=project%3D${ENDPOINT_ID}`;
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: {
+    cors: false, // Disable default CORS to use our custom configuration
+  });
+  const sessionRepository = getRepository(Session);
+
+  const configService = app.get(ConfigService);
+  const adapter = new WebsocketAdapter(app, configService);
+  app.useWebSocketAdapter(adapter);
+  app.setGlobalPrefix('api');
+
+  const isProd = process.env.NODE_ENV === 'production';
+  console.log('isProd', isProd);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('All environment variables:', Object.keys(process.env).filter(key => key.includes('NODE') || key.includes('RAILWAY')));
+
+  // Apply CORS before other middleware
+  if (!isProd) {
+    app.enableCors({
+      origin: true, // Allow all origins in development
+      credentials: true,
+    });
+  } else {
+    // Ensure CORS is properly configured in production
+    app.enableCors({
       origin: [
         'http://localhost:3000',
+        'http://localhost:3001',
         'https://ans-chat-front.vercel.app',
         'https://front-react-359f97dc238f.herokuapp.com',
         'https://front-react-359f97dc238f.herokuapp.com/',
@@ -36,21 +59,15 @@ async function bootstrap() {
       ],
       credentials: true,
       optionsSuccessStatus: 200,
-    },
-  });
-  const sessionRepository = getRepository(Session);
-
-  const configService = app.get(ConfigService);
-  const adapter = new WebsocketAdapter(app, configService);
-  app.useWebSocketAdapter(adapter);
-  app.setGlobalPrefix('api');
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    });
+  }
 
   app.use(helmet());
   app.set('trust proxy', 1);
 
   const production: any = { sameSite: 'none', secure: true, httpOnly: false };
-
-  const isProd = process.env.NODE_ENV === 'production';
 
   app.useGlobalPipes(new ValidationPipe());
   app.use(

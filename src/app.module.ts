@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { HttpModule } from '@nestjs/axios';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConversationsModule } from './conversations/conversations.module';
@@ -14,10 +15,12 @@ import { PostsModule } from './posts/posts.module';
 import { CommentsModule } from './comments/comments.module';
 import { StripeModule } from './stripe/stripe.module';
 import { FriendsModule } from './friends/friends.module';
+import { InstagramModule } from './instagram/instagram.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env.development' }),
+    HttpModule,
     AuthModule,
     UsersModule,
     PassportModule.register({ session: true }),
@@ -48,6 +51,7 @@ import { FriendsModule } from './friends/friends.module';
     StripeModule,
     EventEmitterModule.forRoot(),
     FriendsModule,
+    InstagramModule,
   ],
   controllers: [],
   providers: [],
