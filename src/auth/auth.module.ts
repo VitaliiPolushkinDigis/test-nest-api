@@ -9,6 +9,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './utils/JwtStrategy';
 import { UserService } from 'src/users/user.service';
+import { GoogleStrategy } from './utils/google.strategy';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { UserService } from 'src/users/user.service';
     SessionSerializer,
     UserService,
     JwtStrategy,
+    GoogleStrategy,
     {
       provide: Services.AUTH,
       useClass: AuthService,
