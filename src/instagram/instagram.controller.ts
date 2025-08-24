@@ -13,9 +13,10 @@ export class InstagramController {
   async sendDirectMessage(
     @Body() body: { recipientId: string; message: string }
   ) {
+    //TODO: use recipientId from the user, not hardcoded
     return await this.instagramService.sendDirectMessage(
-      body.recipientId || '708149675552701',
-      body.message || 'Hello, how are you?'
+      body.recipientId || '708149675552701', // Use valid user ID (8teenyo) instead of conversation ID
+      body.message || 'Hello! This is a test message from your Instagram automation.'
     );
   }
 

@@ -36,25 +36,91 @@ export class InstagramService {
 
   async sendDirectMessage(recipientId: string, message: string) {
     try {
-      const url = `${this.baseUrl}/me/messages`; // Use /me/messages
-      const data = {
-        recipient: { id: recipientId },
-        message: { text: message },
-        access_token: this.accessToken,
-      };
-
-      this.logger.log(`Sending DM to ${recipientId}: ${message}`);
-      this.logger.log(`URL: ${url}`);
+      // Instagram DMs are handled through Facebook Graph API, not Instagram Graph API
+      // We need to use the Facebook page ID with platform=instagram parameter
       
-      const response = await firstValueFrom(
-        this.httpService.post(url, data)
-      );
-
-      this.logger.log('DM sent successfully:', response.data);
-      return response.data;
+      const facebookPageId = process.env.FACEBOOK_PAGE_ID;
+      
+      if (!facebookPageId) {
+        // Try to get page ID from Facebook Graph API
+        this.logger.log('No Facebook page ID found, attempting to fetch it...');
+        try {
+          const pagesUrl = 'https://graph.facebook.com/v23.0/me/accounts';
+          const pagesParams = {
+            access_token: process.env.FACEBOOK_ACCESS_TOKEN,
+          };
+          
+          const pagesResponse = await firstValueFrom(
+            this.httpService.get(pagesUrl, { params: pagesParams })
+          );
+          
+          if (pagesResponse.data.data && pagesResponse.data.data.length > 0) {
+            const pageId = pagesResponse.data.data[0].id;
+            this.logger.log(`Found Facebook page ID: ${pageId}`);
+            
+            // Send DM using Facebook Graph API
+            const dmUrl = `https://graph.facebook.com/v23.0/${pageId}/messages`;
+            const dmData = {
+              recipient: { id: recipientId },
+              message: { text: message },
+              access_token: process.env.FACEBOOK_ACCESS_TOKEN,
+            };
+            
+            this.logger.log(`Sending Instagram DM via Facebook API to ${recipientId}: ${message}`);
+            const response = await firstValueFrom(
+              this.httpService.post(dmUrl, dmData)
+            );
+            
+            this.logger.log('Instagram DM sent successfully via Facebook API:', response.data);
+            return {
+              success: true,
+              message: 'Instagram DM sent successfully via Facebook Graph API',
+              data: response.data,
+              source: 'facebook_graph_api',
+              note: 'This uses Facebook Graph API for Instagram messaging'
+            };
+          } else {
+            throw new Error('No Facebook pages found');
+          }
+        } catch (facebookError) {
+          this.logger.error('Failed to send DM via Facebook Graph API:', facebookError.response?.data || facebookError.message);
+          throw new Error('Instagram DMs require Facebook Graph API access. Please set FACEBOOK_PAGE_ID or ensure FACEBOOK_ACCESS_TOKEN is valid.');
+        }
+      } else {
+        // Use the provided Facebook page ID
+        const dmUrl = `https://graph.facebook.com/v23.0/${facebookPageId}/messages`;
+        const dmData = {
+          recipient: { id: recipientId },
+          message: { text: message },
+          access_token: process.env.FACEBOOK_ACCESS_TOKEN,
+        };
+        
+        this.logger.log(`Sending Instagram DM via Facebook API to ${recipientId}: ${message}`);
+        const response = await firstValueFrom(
+          this.httpService.post(dmUrl, dmData)
+        );
+        
+        this.logger.log('Instagram DM sent successfully via Facebook API:', response.data);
+        return {
+          success: true,
+          message: 'Instagram DM sent successfully via Facebook Graph API',
+          data: response.data,
+          source: 'facebook_graph_api',
+          note: 'This uses Facebook Graph API for Instagram messaging'
+        };
+      }
     } catch (error) {
-      this.logger.error('Error sending DM:', error.response?.data || error.message);
-      throw error;
+      this.logger.error('Error sending Instagram DM:', error.response?.data || error.message);
+      
+      // Return helpful error information
+      return {
+        success: false,
+        error: 'Failed to send Instagram DM',
+        message: error.response?.data?.error?.message || error.message,
+        errorCode: error.response?.data?.error?.code,
+        suggestion: 'Ensure FACEBOOK_ACCESS_TOKEN and FACEBOOK_PAGE_ID are set correctly, and the recipient ID is valid',
+        note: 'Instagram DMs require Facebook Graph API access, not Instagram Graph API'
+      };
     }
   }
 //TODO: use dynamic FACEBOOK_PAGE_ID not hardcoded, i need to get it from the user. I need to get access from users account to manage posts, comments, messages, and get messages from their account.
