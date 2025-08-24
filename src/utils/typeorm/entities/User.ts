@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Message } from './Message';
 import { Profile } from './Profile';
+import { InstagramProfile } from './InstagramProfile';
 
 @Entity({ name: 'users' })
 export class User {
@@ -48,6 +49,9 @@ export class User {
   @OneToMany(() => Message, (message) => message.author)
   @JoinColumn()
   messages: Message[];
+
+  @OneToMany(() => InstagramProfile, (instagramProfile) => instagramProfile.user)
+  instagramProfiles: InstagramProfile[];
 
   @OneToOne(() => Profile, (profile) => profile.user, {
     cascade: true /*  ['insert', 'remove', 'update'], */,

@@ -6,6 +6,7 @@ import { Profile } from './entities/Profile';
 import { Comment } from './entities/Comment';
 import { Post } from './entities/Post';
 import { Friendship } from './entities/Friendship';
+import { InstagramProfile } from './entities/InstagramProfile';
 
 const entities = [
   User,
@@ -16,6 +17,7 @@ const entities = [
   Post,
   Comment,
   Friendship,
+  InstagramProfile,
 ];
 
 export default entities;
@@ -29,4 +31,5 @@ export {
   Post,
   Comment,
   Friendship,
+  InstagramProfile,
 };

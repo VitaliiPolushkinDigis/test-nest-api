@@ -162,4 +162,27 @@ console.log('-------------------yeah');
       return false;
     }
   }
+
+  // Get current user info with a specific token
+  async getCurrentUserWithToken(token: string): Promise<any> {
+    try {
+      const url = 'https://graph.instagram.com/me';
+      const params = {
+        access_token: token,
+        fields: 'id,username,account_type,media_count,followers_count,follows_count,profile_picture_url',
+      };
+
+      this.logger.log('Fetching current user info with token...');
+      
+      const response = await firstValueFrom(
+        this.httpService.get(url, { params })
+      );
+
+      this.logger.log('User info fetched successfully with token');
+      return response.data;
+    } catch (error) {
+      this.logger.error('Failed to get user info with token:', error.response?.data || error.message);
+      throw new Error(`Failed to get user info with token: ${error.response?.data?.error?.message || error.message}`);
+    }
+  }
 }

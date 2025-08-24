@@ -52,7 +52,7 @@ export class InstagramWebhookService {
 
       if (message) {
         // Handle incoming message
-        await this.handleIncomingMessage(sender.id, message);
+        await this.handleMessageEvent(message);
       } else if (postback) {
         // Handle postback (button clicks, etc.)
         await this.handlePostback(sender.id, postback);
@@ -67,34 +67,94 @@ export class InstagramWebhookService {
     try {
       if (change.field === 'comments') {
         const comment = change.value;
-        await this.handleNewComment(comment);
+        await this.handleCommentEvent(comment);
       }
     } catch (error) {
       this.logger.error('Error handling comment change:', error);
     }
   }
 
-  private async handleIncomingMessage(senderId: string, message: any) {
+  private async handleMessageEvent(messageData: any) {
     try {
-      this.logger.log(`Received message from ${senderId}: ${message.text}`);
-
-      // Skip test/dummy data
-      if (this.isTestMessageData(senderId, message)) {
-        this.logger.log('Skipping test/dummy message data');
+      const senderId = messageData.sender?.id;
+      const messageText = messageData.message?.text;
+      
+      if (!senderId || !messageText) {
+        this.logger.log('Missing sender ID or message text, skipping auto-reply');
         return;
       }
 
-      // Auto-reply logic
-      if (message.text) {
-        const autoReply = await this.generateAutoReply(message.text);
-        if (autoReply) {
-          await this.instagramService.sendDirectMessage(senderId, autoReply);
-          this.logger.log(`Auto-reply sent to ${senderId}: ${autoReply}`);
-        }
+      this.logger.log(`Processing message from ${senderId}: ${messageText}`);
+
+      // Auto-reply logic based on message content
+      let autoReply = '';
+      const lowerMessage = messageText.toLowerCase();
+
+      if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+        autoReply = "👋 Hello! Thanks for reaching out. How can I help you today?";
+      } else if (lowerMessage.includes('help') || lowerMessage.includes('support')) {
+        autoReply = "🆘 I'm here to help! What do you need assistance with?";
+      } else if (lowerMessage.includes('product') || lowerMessage.includes('price')) {
+        autoReply = "💰 Thanks for your interest! I'll have our team get back to you with pricing details within 24 hours.";
+      } else if (lowerMessage.includes('hours') || lowerMessage.includes('open')) {
+        autoReply = "🕒 We're open Monday-Friday 9 AM - 6 PM EST. Feel free to reach out anytime!";
+      } else {
+        autoReply = "Thanks for your message! I'll get back to you as soon as possible. 😊";
       }
 
+      // Send auto-reply using the automation service
+      // Note: We need to get the profile info to get facebookPageId and facebookAccessToken
+      // For now, we'll log that we need to implement profile lookup
+      this.logger.log(`Would send auto-reply to ${senderId}: ${autoReply}`);
+      this.logger.log('Note: Need to implement profile lookup to get facebookPageId and facebookAccessToken');
+      
+      // TODO: Implement profile lookup to get the required parameters
+      // const profile = await this.instagramProfileService.getProfileById(profileId, userId);
+      // await this.instagramService.sendDirectMessage(senderId, autoReply, profile.facebookPageId, profile.facebookAccessToken);
+      
     } catch (error) {
-      this.logger.error('Error handling incoming message:', error);
+      this.logger.error('Error handling message event:', error);
+    }
+  }
+
+  private async handleCommentEvent(commentData: any) {
+    try {
+      const comment = commentData.value;
+      const commentText = comment.message?.text;
+      const commenterId = comment.from?.id;
+      
+      if (!commentText || !commenterId) {
+        this.logger.log('Missing comment text or commenter ID, skipping auto-reply');
+        return;
+      }
+
+      this.logger.log(`Processing comment from ${commenterId}: ${commentText}`);
+
+      // Auto-reply to comments
+      let reply = '';
+      const lowerComment = commentText.toLowerCase();
+
+      if (lowerComment.includes('amazing') || lowerComment.includes('love') || lowerComment.includes('great')) {
+        reply = "Thank you! We're so glad you like it! 😊";
+      } else if (lowerComment.includes('question') || lowerComment.includes('how') || lowerComment.includes('what')) {
+        reply = "Great question! Let me know if you need more details! 💡";
+      } else if (lowerComment.includes('price') || lowerComment.includes('cost')) {
+        reply = "Thanks for asking! Check out our latest pricing on our website! 💰";
+      } else {
+        reply = "Thanks for your comment! We appreciate your engagement! 🙏";
+      }
+
+      // Send reply to comment
+      // Note: We need to get the profile info to get instagramAccessToken
+      this.logger.log(`Would reply to comment from ${commenterId}: ${reply}`);
+      this.logger.log('Note: Need to implement profile lookup to get instagramAccessToken');
+      
+      // TODO: Implement profile lookup to get the required parameters
+      // const profile = await this.instagramProfileService.getProfileById(profileId, userId);
+      // await this.instagramService.replyToComment(comment.id, reply, profile.instagramAccessToken);
+      
+    } catch (error) {
+      this.logger.error('Error handling comment event:', error);
     }
   }
 
@@ -132,8 +192,10 @@ export class InstagramWebhookService {
       // Auto-reply to comments if needed
       if (comment.text.toLowerCase().includes('hello') || comment.text.toLowerCase().includes('hi')) {
         const reply = `👋 Hello @${comment.from.username}! Thanks for your comment!`;
-        await this.instagramService.replyToComment(comment.id, reply);
-        this.logger.log(`Auto-reply sent to comment: ${reply}`);
+        // Note: We need profile info to get instagramAccessToken
+        this.logger.log(`Would reply to comment: ${reply}`);
+        this.logger.log('Note: Need to implement profile lookup to get instagramAccessToken');
+        // await this.instagramService.replyToComment(comment.id, reply, profile.instagramAccessToken);
       }
 
     } catch (error) {
@@ -212,8 +274,10 @@ export class InstagramWebhookService {
 
 Just send me a message and I'll help you out!`;
       
-      await this.instagramService.sendDirectMessage(senderId, welcomeMessage);
-      this.logger.log(`Welcome message sent to ${senderId}`);
+      // Note: We need profile info to get facebookPageId and facebookAccessToken
+      this.logger.log(`Would send welcome message to ${senderId}: ${welcomeMessage}`);
+      this.logger.log('Note: Need to implement profile lookup to get facebookPageId and facebookAccessToken');
+      // await this.instagramService.sendDirectMessage(senderId, welcomeMessage, profile.facebookPageId, profile.facebookAccessToken);
     } catch (error) {
       this.logger.error('Error sending welcome message:', error);
     }
@@ -230,8 +294,10 @@ Just send me a message and I'll help you out!`;
 
 What specific help do you need?`;
       
-      await this.instagramService.sendDirectMessage(senderId, helpMessage);
-      this.logger.log(`Help message sent to ${senderId}`);
+      // Note: We need profile info to get facebookPageId and facebookAccessToken
+      this.logger.log(`Would send help message to ${senderId}: ${helpMessage}`);
+      this.logger.log('Note: Need to implement profile lookup to get facebookPageId and facebookAccessToken');
+      // await this.instagramService.sendDirectMessage(senderId, helpMessage, profile.facebookPageId, profile.facebookAccessToken);
     } catch (error) {
       this.logger.error('Error sending help message:', error);
     }
